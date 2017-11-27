@@ -1,15 +1,24 @@
-import time, random
+#!/usr/bin/env python
+
+""" A simple LRU simulation """
+
+import time, random, keyboard
 
 input = ""
 frameList = []
 processPageList = []
 pageTable = []
+pageTableOrdered = []
 freeFrames = range(0,16)
 
 
 def start():
     global input, frameList, processPageList
 
+    print "\n******************************************************************"
+    print "\tThis is a simulation for LRU replacement."
+    print "\tAt any time you may choose to quit('q') this program."
+    print "******************************************************************"
     #Open File
     with open ("input.txt") as f:
         original = f.readlines()
@@ -36,15 +45,13 @@ def run():
     global frameList, pageTable, processPageList, freeFrames
     inFrame = 0
     ts = 0
-
+    run = 0
 
     #run through each process in list
     for process in processPageList:
         restart = True
-        print process
         #timestamp increment
         ts += 1
-        print ts
         #variable to denote whether in frame list or not
         inFrame = 0
 
@@ -55,6 +62,7 @@ def run():
         if not frameList:
             frameList.append([process[0], process[1], randomFrame, ts])
             pageTable.append([process[0], process[1], randomFrame])
+            pageTableOrdered.append([process[0], process[1], randomFrame])
             for frame in freeFrames:
                 if frame == randomFrame:
                     freeFrames.remove(frame)
@@ -82,13 +90,13 @@ def run():
                             ts += 1
                             frameList.append([process[0], process[1], randomFrame, ts])
                             pageTable.append([process[0], process[1], randomFrame])
+                            pageTableOrdered.append([process[0], process[1], randomFrame])
                             restart = False
                             break
                 inFrame = 1
 
 
             #if frame list full, find least recently used
-            #TODO
             elif not freeFrames:
 
                 #initial values for LRU, index count, and frame to replace
@@ -110,24 +118,32 @@ def run():
 
                 #remove least recently used from frame list, replace with new process
                 ts += 1
-                print frameList
                 frameList.remove(frameList[count])
                 pageTable.remove(pageTable[count])
+                pageTableOrdered.remove(pageTableOrdered[count])
                 frameList.insert(count, [process[0], process[1], frame, ts])
                 pageTable.insert(count, [process[0], process[1], count])
+                pageTableOrdered.append([process[0], process[1], count])
 
-                print frameList
-
-    #TODO implement a way to print status with space bar
+        #accept user input to step through or run to completion
+        if run != 1:
+            rinput = raw_input("\nEnter 'S' to step or 'R' to run: ")
+            if rinput == 's':
+                printStatus()
+            if rinput == 'r':
+                run = 1
+            if rinput == 'q':
+                exit(1)
 
 def printStatus():
     global pageTable
 
-    for x in processPageList:
+    for x in pageTableOrdered:
         # time.sleep(.5)
         proc = x[0]
 
         #print output
+        print "\n-----------------------------"
         print "Process / Page referenced"
         print "Process: " + str(x[0])
         print "Page: " + str(x[1])
@@ -158,7 +174,6 @@ def printStatus():
 
 
         print "-----------------------------"
-
 
 if __name__ == '__main__':
     start()
