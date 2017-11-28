@@ -2,13 +2,15 @@
 
 """ A simple LRU simulation """
 
-import time, random, keyboard
+import time, random, keyboard, itertools
+from Tkinter import *
 
 input = ""
 frameList = []
 processPageList = []
 pageTable = []
-pageTableOrdered = []
+displayTable = []
+pfList = []
 freeFrames = range(0,16)
 
 
@@ -49,9 +51,13 @@ def run():
 
     #run through each process in list
     for process in processPageList:
+
+        #intial flag for reloop
         restart = True
+
         #timestamp increment
         ts += 1
+
         #variable to denote whether in frame list or not
         inFrame = 0
 
@@ -60,9 +66,10 @@ def run():
 
         #if list is empty (base case)
         if not frameList:
+            pageFault(process[0])
             frameList.append([process[0], process[1], randomFrame, ts])
             pageTable.append([process[0], process[1], randomFrame])
-            pageTableOrdered.append([process[0], process[1], randomFrame])
+            displayTable.append([process[0], process[1], randomFrame])
             for frame in freeFrames:
                 if frame == randomFrame:
                     freeFrames.remove(frame)
@@ -88,9 +95,10 @@ def run():
                         if frame == randomFrame:
                             freeFrames.remove(randomFrame)
                             ts += 1
+                            pageFault(process[0])
                             frameList.append([process[0], process[1], randomFrame, ts])
                             pageTable.append([process[0], process[1], randomFrame])
-                            pageTableOrdered.append([process[0], process[1], randomFrame])
+                            displayTable.append([process[0], process[1], randomFrame])
                             restart = False
                             break
                 inFrame = 1
@@ -120,10 +128,11 @@ def run():
                 ts += 1
                 frameList.remove(frameList[count])
                 pageTable.remove(pageTable[count])
-                pageTableOrdered.remove(pageTableOrdered[count])
+                displayTable.remove(displayTable[count])
+                pageFault(process[0])
                 frameList.insert(count, [process[0], process[1], frame, ts])
                 pageTable.insert(count, [process[0], process[1], count])
-                pageTableOrdered.append([process[0], process[1], count])
+                displayTable.append([process[0], process[1], count])
 
         #accept user input to step through or run to completion
         if run != 1:
@@ -135,10 +144,19 @@ def run():
             if rinput == 'q':
                 exit(1)
 
-def printStatus():
-    global pageTable
+def pageFault(proc):
+    global pfList
 
-    for x in pageTableOrdered:
+    pfList.append([proc,1])
+
+def printStatus():
+    global pageTable, displayTable
+    count = 0
+    for x in displayTable:
+
+        #page fault count
+        pfcount = 0
+
         # time.sleep(.5)
         proc = x[0]
 
@@ -159,6 +177,11 @@ def printStatus():
                 # print str(int(str(x[1]),2)) + "\t" + str(x[2])
                 print str(x[1]) + "\t" + str(x[2])
 
+        #print page faults for process
+        for x in pfList:
+            if x[0] == proc:
+                pfcount += x[1]
+        print "Page Faults: ", pfcount
 
         print "\nPhysical Memory / Frame Table"
         print "Frame#\tProcID\tPage#"
@@ -174,6 +197,23 @@ def printStatus():
 
 
         print "-----------------------------"
+
+    print "Final Page Faults [process, # of faults]"
+
+    #calculate page faults
+    pflist = []
+    for x in processPageList:
+        count = 0
+        for y in pfList:
+            if x[0] == y[0]:
+                count += y[1]
+        pflist.append([x[0], count])
+
+    #sort page fault list
+    pfset = set(map(tuple,pflist))
+    pf = map(list,pfset)
+    pf.sort(key = lambda x: pflist.index(x))
+    print pf
 
 if __name__ == '__main__':
     start()
