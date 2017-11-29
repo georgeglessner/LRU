@@ -169,7 +169,7 @@ def printCurrentStatus(process):
     print "Process: " + str(process[0])
     print "Page: " + str(process[1])
 
-    print "Page Table"
+    print "\nPage Table"
     print "Process " + str(process[0]) + ":"
     print "Page\tFrame"
 
@@ -200,9 +200,6 @@ def printFinalStatus():
     global pageTable
     for x in pageTable:
 
-        #page fault count
-        pfcount = 0
-
         #process #
         proc = x[0]
 
@@ -221,11 +218,6 @@ def printFinalStatus():
             if x[0] == proc:
                 print str(x[1]) + "\t" + str(x[2])
 
-        #print page faults for process
-        for x in pfList:
-            if x[0] == proc:
-                pfcount += x[1]
-        print "Page Faults: ", pfcount
 
         print "\nPhysical Memory / Frame Table"
         print "Frame#\tProcID\tPage#"
@@ -240,6 +232,7 @@ def printFinalStatus():
                 print str(x) + "\t\t"
 
         print "-----------------------------"
+
 
     #if end of input file, print final page fault statistics
     if pCount == len(processPageList):
