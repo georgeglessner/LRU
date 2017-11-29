@@ -1,25 +1,29 @@
 #!/usr/bin/env python
 
-'''
+"""
 A simple LRU simulation with specifications:
     - System physical memory is 16 KB
     - Page / frame size is 1 KB
-'''
+"""
 
 __author__ = "George Glessner"
 
-import time, random, keyboard, itertools
+import time
+import random
+import keyboard
+import itertools
 
 input = ""  # input string from input file
 frameList = []  # current frame list
 processPageList = []    # list of all processes
 pageTable = []  # keeps track of process' current page table
-pfList = [] # list to keep track of page faults for processes
-freeFrames = range(0,16)    # free frame list
+pfList = []  # list to keep track of page faults for processes
+freeFrames = range(0, 16)    # free frame list
 pCount = 0  # process count
 
+
 def start():
-    ''' format input list and add to processPageList '''
+    """ format input list and add to processPageList """
 
     global input, frameList, processPageList
 
@@ -29,7 +33,7 @@ def start():
     print "******************************************************************"
 
     # Open File
-    with open ("input.txt") as f:
+    with open("input.txt") as f:
         original = f.readlines()
 
         # Remove ":", "\n"
@@ -37,28 +41,29 @@ def start():
             input = line.replace(":", "")
             input = input.replace('\n', "")
 
-            #  Split by tab, add to processList
+            # Split by tab, add to processList
             output = input.partition('\t')
 
             # convert process to number
             pid = output[0]
             proc = int(pid[1])
 
-            # convert binary page #  to decimal
-            page = int(str(output[2]),2)
+            # convert binary page # to decimal
+            page = int(str(output[2]), 2)
 
-            # add process and page #  to list
+            # add process and page # to list
             processPageList.append([proc, page])
 
+
 def run():
-    ''' run through input list, place processes in frame utilizing
+    """ run through input list, place processes in frame utilizing
         free frame list and LRU
-    '''
+    """
 
     global frameList, pageTable, processPageList, freeFrames, pCount
-    inFrame, timeStamp, run = 0,0,0
+    inFrame, timeStamp, run = 0, 0, 0
 
-    #  run through each process in list
+    # run through each process in list
     for process in processPageList:
 
         # flag for reloop
@@ -71,7 +76,7 @@ def run():
         inFrame = 0
 
         # variable to assign random frame
-        randomFrame = random.randint(0,15)
+        randomFrame = random.randint(0, 15)
 
         # if list is empty (base case)
         if not frameList:
@@ -84,7 +89,7 @@ def run():
 
         # run through each entry in frame list
         for entries in frameList:
-            # if process id and page #  are in frame list, set inFrame to 1
+            # if process id and page # are in frame list, set inFrame to 1
             if process[0] == entries[0] and process[1] == entries[1]:
                 timeStamp += 1
                 entries[3] = timeStamp
@@ -95,7 +100,7 @@ def run():
         if inFrame == 0:
             if freeFrames:
                 while restart:
-                    randomFrame = random.randint(0,15)
+                    randomFrame = random.randint(0, 15)
                     # check through list of free frames
                     for frame in freeFrames:
                         # if frame is available, remove from free frames, append to frame list
@@ -103,12 +108,13 @@ def run():
                             freeFrames.remove(randomFrame)
                             timeStamp += 1
                             pageFault(process[0])
-                            frameList.append([process[0], process[1], randomFrame, timeStamp])
-                            pageTable.append([process[0], process[1], randomFrame])
+                            frameList.append(
+                                [process[0], process[1], randomFrame, timeStamp])
+                            pageTable.append(
+                                [process[0], process[1], randomFrame])
                             restart = False
                             break
                 inFrame = 1
-
 
             # if frame list full, find least recently used
             elif not freeFrames:
@@ -135,7 +141,8 @@ def run():
                 frameList.remove(frameList[count])
                 pageTable.remove(pageTable[count])
                 pageFault(process[0])
-                frameList.insert(count, [process[0], process[1], frame, timeStamp])
+                frameList.insert(
+                    count, [process[0], process[1], frame, timeStamp])
                 pageTable.insert(count, [process[0], process[1], count])
 
         # accept user input to step through or run to completion
@@ -154,14 +161,16 @@ def run():
                 print "Invalid entry, please enter 's', 'r', or 'q'"
                 print "**********************************************"
 
+
 def pageFault(proc):
-    ''' add page fault to list '''
+    """ add page fault to list """
 
     global pfList
-    pfList.append([proc,1])
+    pfList.append([proc, 1])
+
 
 def printCurrentStatus(process):
-    ''' print current status '''
+    """ print current status """
 
     print "\n-----------------------------"
     print "Process / Page referenced"
@@ -179,12 +188,11 @@ def printCurrentStatus(process):
         if x[0] == process[0]:
             print str(x[1]) + "\t" + str(x[2])
 
-
     print "\nPhysical Memory / Frame Table"
     print "============================="
     print "Frame# \tProcID\tPage# "
 
-    # Check to see what process is in frame #  and print
+    # Check to see what process is in frame # and print
     for x in range(16):
         for frame in frameList:
             if frame[2] == x:
@@ -197,9 +205,9 @@ def printCurrentStatus(process):
 
 
 def printFinalStatus():
-    ''' print final status '''
+    """ print final status """
 
-    finalProcess = processPageList[len(processPageList)-1]
+    finalProcess = processPageList[len(processPageList) - 1]
 
     # print output
     print "\n-----------------------------"
@@ -218,12 +226,11 @@ def printFinalStatus():
         if x[0] == finalProcess[0]:
             print str(x[1]) + "\t" + str(x[2])
 
-
     print "\nPhysical Memory / Frame Table"
     print "============================="
     print "Frame# \tProcID\tPage# "
 
-    # Check to see what process is in frame #  and print
+    # Check to see what process is in frame # and print
     for x in range(16):
         for frame in frameList:
             if frame[2] == x:
@@ -234,10 +241,9 @@ def printFinalStatus():
 
     print "-----------------------------"
 
-
     # if end of input file, print final page fault statistics
     if pCount == len(processPageList):
-        print "\nFinal Page Faults [process, #  of faults]"
+        print "\nFinal Page Faults [process, # of faults]"
 
         # calculate page faults
         pflist = []
@@ -249,10 +255,11 @@ def printFinalStatus():
             pflist.append([x[0], count])
 
         # sort page fault list
-        pfset = set(map(tuple,pflist))
-        pf = map(list,pfset)
-        pf.sort(key = lambda x: pflist.index(x))
+        pfset = set(map(tuple, pflist))
+        pf = map(list, pfset)
+        pf.sort(key=lambda x: pflist.index(x))
         print pf, '\n'
+
 
 if __name__ == '__main__':
     start()
