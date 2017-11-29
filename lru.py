@@ -162,14 +162,14 @@ def pageFault(proc):
 def printCurrentStatus(process):
     ''' print current status '''
 
-    global pageTable
-
     print "\n-----------------------------"
     print "Process / Page referenced"
+    print "========================="
     print "Process: " + str(process[0])
     print "Page: " + str(process[1])
 
     print "\nPage Table"
+    print "=========="
     print "Process " + str(process[0]) + ":"
     print "Page\tFrame"
 
@@ -180,6 +180,7 @@ def printCurrentStatus(process):
 
 
     print "\nPhysical Memory / Frame Table"
+    print "============================="
     print "Frame#\tProcID\tPage#"
 
     #Check to see what process is in frame # and print
@@ -197,41 +198,40 @@ def printCurrentStatus(process):
 def printFinalStatus():
     ''' print final status '''
 
-    global pageTable
+    finalProcess = processPageList[len(processPageList)-1]
+
+    #print output
+    print "\n-----------------------------"
+    print "Process / Page referenced"
+    print "========================="
+    print "Process: " + str(finalProcess[0])
+    print "Page: " + str(finalProcess[1])
+
+    print "\nPage Table"
+    print "=========="
+    print "Process " + str(finalProcess[0]) + ":"
+    print "Page\tFrame"
+
+    #get current process, print page+frame
     for x in pageTable:
-
-        #process #
-        proc = x[0]
-
-        #print output
-        print "\n-----------------------------"
-        print "Process / Page referenced"
-        print "Process: " + str(x[0])
-        print "Page: " + str(x[1])
-
-        print "\nPage Table"
-        print "Process " + str(x[0]) + ":"
-        print "Page\tFrame"
-
-        #get current process, print page+frame
-        for x in pageTable:
-            if x[0] == proc:
-                print str(x[1]) + "\t" + str(x[2])
+        if x[0] == finalProcess[0]:
+            print str(x[1]) + "\t" + str(x[2])
 
 
-        print "\nPhysical Memory / Frame Table"
-        print "Frame#\tProcID\tPage#"
+    print "\nPhysical Memory / Frame Table"
+    print "============================="
+    print "Frame#\tProcID\tPage#"
 
-        #Check to see what process is in frame # and print
-        for x in range(16):
-            for frame in frameList:
-                if frame[2] == x:
-                    print str(x) + "\t" + str(frame[0]) + "\t" + str(frame[1])
-                    break
-            else:
-                print str(x) + "\t\t"
+    #Check to see what process is in frame # and print
+    for x in range(16):
+        for frame in frameList:
+            if frame[2] == x:
+                print str(x) + "\t" + str(frame[0]) + "\t" + str(frame[1])
+                break
+        else:
+            print str(x) + "\t\t"
 
-        print "-----------------------------"
+    print "-----------------------------"
 
 
     #if end of input file, print final page fault statistics
