@@ -239,11 +239,10 @@ def printFinalStatus():
         else:
             print str(x) + "\t\t"
 
-    print "-----------------------------"
-
-    # if end of input file, print final page fault statistics
+    # if end of input file, print final page fault / reference statistics
     if pCount == len(processPageList):
-        print "\nFinal Page Faults [process, # of faults]"
+        print "\nFinal Page Faults / References"
+        print "=============================="
 
         # calculate page faults
         pflist = []
@@ -258,7 +257,30 @@ def printFinalStatus():
         pfset = set(map(tuple, pflist))
         pf = map(list, pfset)
         pf.sort(key=lambda x: pflist.index(x))
-        print pf, '\n'
+
+        # Calculate total references
+        ref, finRef = [], []
+        for x in processPageList:
+            ref.append([x[0], 1])
+        for x in processPageList:
+            count = 0
+            for y in ref:
+                if x[0] == y[0]:
+                    count += y[1]
+            finRef.append([x[0], count])
+
+        # sort reference list
+        refset = set(map(tuple, finRef))
+        ref = map(list, refset)
+        ref.sort(key=lambda x: finRef.index(x))
+
+        # print out total page faults / references
+        for x in pf:
+            for y in ref:
+                if x[0] == y[0]:
+                    print "Process", x[0], ':', x[1], "/", y[1]
+
+        print "-----------------------------"
 
 
 if __name__ == '__main__':
