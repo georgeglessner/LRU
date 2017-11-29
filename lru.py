@@ -13,7 +13,6 @@ input = ""  #input string from input file
 frameList = []  #current frame list
 processPageList = []    #list of all processes
 pageTable = []  #keeps track of process' current page table
-displayTable = []   #list of what to currently display
 pfList = [] #list to keep track of page faults for processes
 freeFrames = range(0,16)    #free frame list
 pCount = 0  #process count
@@ -78,7 +77,6 @@ def run():
             pageFault(process[0])
             frameList.append([process[0], process[1], randomFrame, timeStamp])
             pageTable.append([process[0], process[1], randomFrame])
-            displayTable.append([process[0], process[1], randomFrame])
             for frame in freeFrames:
                 if frame == randomFrame:
                     freeFrames.remove(frame)
@@ -106,7 +104,6 @@ def run():
                             pageFault(process[0])
                             frameList.append([process[0], process[1], randomFrame, timeStamp])
                             pageTable.append([process[0], process[1], randomFrame])
-                            displayTable.append([process[0], process[1], randomFrame])
                             restart = False
                             break
                 inFrame = 1
@@ -136,11 +133,9 @@ def run():
                 timeStamp += 1
                 frameList.remove(frameList[count])
                 pageTable.remove(pageTable[count])
-                displayTable.remove(displayTable[count])
                 pageFault(process[0])
                 frameList.insert(count, [process[0], process[1], frame, timeStamp])
                 pageTable.insert(count, [process[0], process[1], count])
-                displayTable.append([process[0], process[1], count])
 
         #accept user input to step through or run to completion
         if run != 1:
@@ -167,7 +162,7 @@ def pageFault(proc):
 def printCurrentStatus(process):
     ''' print current status '''
 
-    global pageTable, displayTable
+    global pageTable
 
     print "\n-----------------------------"
     print "Process / Page referenced"
@@ -181,7 +176,6 @@ def printCurrentStatus(process):
     #get current process, print page+frame
     for x in pageTable:
         if x[0] == process[0]:
-            # print str(int(str(x[1]),2)) + "\t" + str(x[2])
             print str(x[1]) + "\t" + str(x[2])
 
 
@@ -203,8 +197,8 @@ def printCurrentStatus(process):
 def printFinalStatus():
     ''' print final status '''
 
-    global pageTable, displayTable
-    for x in displayTable:
+    global pageTable
+    for x in pageTable:
 
         #page fault count
         pfcount = 0
@@ -225,7 +219,6 @@ def printFinalStatus():
         #get current process, print page+frame
         for x in pageTable:
             if x[0] == proc:
-                # print str(int(str(x[1]),2)) + "\t" + str(x[2])
                 print str(x[1]) + "\t" + str(x[2])
 
         #print page faults for process
