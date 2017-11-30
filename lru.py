@@ -10,8 +10,6 @@ __author__ = "George Glessner"
 
 import time
 import random
-import keyboard
-import itertools
 
 input = ""  # input string from input file
 frameList = []  # current frame list
